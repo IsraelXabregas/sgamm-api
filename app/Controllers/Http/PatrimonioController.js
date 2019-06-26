@@ -35,6 +35,7 @@ class PatrimonioController {
       "origem",
       "ddv"
     ]);
+
     try {
       const create = await Patrimonio.create(data);
       response.status(201).send(create);

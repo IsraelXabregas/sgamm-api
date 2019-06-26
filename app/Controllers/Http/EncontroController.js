@@ -11,8 +11,8 @@ class EncontroController {
     try {
       const encontroData = await Encontro.all();
       response.status(200).send(encontroData);
-    } catch (e) {
-      response.status(400).send({ success: false, message: "Erro ao obter patrimônios.", error: e.message });
+    } catch (exception) {
+      response.status(400).send({ success: false, message: "Erro ao obter patrimônios.", error: exception.message });
     }
 
   }
@@ -22,15 +22,14 @@ class EncontroController {
    * POST Encontro
    */
   async store({ request, response }) {
-    // console.log(request.all());
     const data = request.all();
+    data.data = data.data.split('/').reverse().join('-'); // Convert data to SQL format
 
     try {
       const createdData = await Encontro.create(data);
       response.status(201).send(createdData);
-    } catch (e) {
-      console.log(e);
-      response.status(400).send("Erro ao cadastrar patrimônio.");
+    } catch (exception) {
+      response.status(400).send({ success: false, message: "Erro ao cadastrar patrimônio.", error: exception.message });
     }
   }
 
@@ -38,7 +37,7 @@ class EncontroController {
    * Display a single encontro.
    * GET Encontro/:id
    */
-  async show({ params, request, response, view }) {
+  async show({ params, request, response }) {
   }
 
   /**
@@ -52,7 +51,17 @@ class EncontroController {
    * Delete a encontro with id.
    * DELETE Encontro/:id
    */
-  async destroy({ params, request, response }) {
+  async destroy({ params, response }) {
+    const { id } = params;
+
+    try {
+      const encontroForDelete = await Encontro.findOrFail(id);
+      await encontroForDelete.delete();
+      response.status(200).send({ success: true, message: "Encontro removido com sucesso.", deletedId: encontroForDelete.id });
+    } catch (exception) {
+      response.status(400).send({ success: false, message: "Erro ao remover encontro.", error: exception.message });
+    }
+
   }
 }
 
